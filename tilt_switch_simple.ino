@@ -1,42 +1,22 @@
-//Parameters
-const int tiltPin = 8;
-const int ledPin = 11;
-//Variables
-bool tiltStatus = false;
-bool oldTiltStatus = false;
-unsigned long lastDebounceTime = 0;
-unsigned long debounceDelay = 50;
+const int tiltSwitchPin = 8; // Définir le numéro de broche du capteur tilt switch
+int previousTiltSwitchState = LOW; // Stocker l'état précédent du capteur tilt switch
 
 void setup() {
-//Init Serial USB
-Serial.begin(9600);
-Serial.println(F("Initialize System"));
-//Init digital input
-pinMode(tiltPin, INPUT);
-//Init digital output
-pinMode(ledPin, OUTPUT);
+  Serial.begin(9600); // Initialiser la communication série
+  pinMode(tiltSwitchPin, INPUT); // Configurer la broche du capteur tilt switch en entrée
 }
 
 void loop() {
-debounceTilt();
-if (tiltStatus == true) {
-digitalWrite(ledPin, HIGH);
-} else {
-digitalWrite(ledPin, LOW);
-}
-}
+  int tiltSwitchState = digitalRead(tiltSwitchPin); // Lire l'état du capteur tilt switch
+  
+  if (tiltSwitchState != previousTiltSwitchState) { // Si l'état du capteur tilt switch a changé
+    previousTiltSwitchState = tiltSwitchState; // Stocker le nouvel état du capteur tilt switch
+    if (tiltSwitchState == HIGH) { // Si le capteur tilt switch est activé
+      Serial.println("Désactivé"); // Envoyer un message "Activé" à la console
+    } else { // Sinon, si le capteur tilt switch est désactivé
+      Serial.println("Activé"); // Envoyer un message "Désactivé" à la console
+    }
+  }
 
-void debounceTilt() {
-//debounce TiltSwitch
-int reading = digitalRead(tiltPin);
-if (reading != oldTiltStatus) {
-lastDebounceTime = millis();
-}
-if ((millis() - lastDebounceTime) > debounceDelay) {
-if (reading != tiltStatus) {
-tiltStatus = reading;
-Serial.print(F("Sensor state : ")); Serial.println(tiltStatus);
-}
-}
-oldTiltStatus = reading;
+  delay(100); // Attendre un court instant avant de vérifier à nouveau l'état du capteur
 }
